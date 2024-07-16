@@ -51,7 +51,7 @@ namespace TPPizza.Web.Controllers
         {
             var vm = new CreateViewModel()
             {
-                SelectedIngredients = this.GetSelectableIngredients()
+                SelectableIngredients = this.GetSelectableIngredients()
             };
             ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName");
             return View(vm);
@@ -62,16 +62,24 @@ namespace TPPizza.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PizzaId,PizzaName,DoughId")] Pizza pizza)
+        public async Task<IActionResult> Create([Bind("Pizza,SelectedIngredientIds")] CreateViewModel input)
         {
+            input.SelectableIngredients = this.GetSelectableIngredients();
+             
             if (ModelState.IsValid)
             {
-                _context.Add(pizza);
+                var pizzaToCreate = new Pizza()
+                {
+                    PizzaName = input.Pizza.PizzaName,
+                    DoughId =  input.Pizza.DoughId,
+                    Ingredients = this.GetSelectedIngredients(input.SelectedIngredientIds)
+
+                };
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName", pizza.DoughId);
-            return View(pizza);
+            ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName", input.Pizza.DoughId);
+            return View(input);
         }
 
         // GET: Pizzas/Edit/5
@@ -170,6 +178,13 @@ namespace TPPizza.Web.Controllers
         {
 
             return this._context.Ingredients.Select(i => new SelectListItem { Value = i.IngredientId.ToString(), Text = i.IngredientName }).ToList();
+        }
+
+        private List<Ingredient> GetSelectedIngredients(List<String> selectedIngredientsIds)
+        {
+            return _context.Ingredients
+                 .Where(i => selectedIngredientsIds.Contains(i.IngredientId.ToString()))
+                 .ToList();
         }
     }
 }
