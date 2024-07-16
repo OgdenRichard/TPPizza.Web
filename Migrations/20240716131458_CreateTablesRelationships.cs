@@ -5,14 +5,17 @@
 namespace TPPizza.Web.Migrations
 {
     /// <inheritdoc />
-    public partial class TablesRelationships : Migration
+    public partial class CreateTablesRelationships : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Pizzas_Doughs_DoughId",
-                table: "Pizzas");
+            migrationBuilder.AddColumn<long>(
+                name: "DoughId",
+                table: "Pizzas",
+                type: "bigint",
+                nullable: false,
+                defaultValue: 0L);
 
             migrationBuilder.CreateTable(
                 name: "Ingredients",
@@ -52,6 +55,17 @@ namespace TPPizza.Web.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Pizzas_DoughId",
+                table: "Pizzas",
+                column: "DoughId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Pizzas_PizzaName",
+                table: "Pizzas",
+                column: "PizzaName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PizzaIngredients_IngredientId",
                 table: "PizzaIngredients",
                 column: "IngredientId");
@@ -78,13 +92,17 @@ namespace TPPizza.Web.Migrations
             migrationBuilder.DropTable(
                 name: "Ingredients");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Pizzas_Doughs_DoughId",
-                table: "Pizzas",
-                column: "DoughId",
-                principalTable: "Doughs",
-                principalColumn: "DoughId",
-                onDelete: ReferentialAction.Cascade);
+            migrationBuilder.DropIndex(
+                name: "IX_Pizzas_DoughId",
+                table: "Pizzas");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Pizzas_PizzaName",
+                table: "Pizzas");
+
+            migrationBuilder.DropColumn(
+                name: "DoughId",
+                table: "Pizzas");
         }
     }
 }

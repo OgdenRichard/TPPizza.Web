@@ -11,8 +11,8 @@ using TPPizza.Web.DataAccessLayer;
 namespace TPPizza.Web.Migrations
 {
     [DbContext(typeof(PizzeriaDbContext))]
-    [Migration("20240716104513_TablesRelationships")]
-    partial class TablesRelationships
+    [Migration("20240716131458_CreateTablesRelationships")]
+    partial class CreateTablesRelationships
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -94,6 +94,9 @@ namespace TPPizza.Web.Migrations
                     b.HasKey("PizzaId");
 
                     b.HasIndex("DoughId");
+
+                    b.HasIndex("PizzaName")
+                        .IsUnique();
 
                     b.ToTable("Pizzas");
                 });

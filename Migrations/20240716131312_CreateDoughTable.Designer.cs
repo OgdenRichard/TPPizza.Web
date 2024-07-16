@@ -11,8 +11,8 @@ using TPPizza.Web.DataAccessLayer;
 namespace TPPizza.Web.Migrations
 {
     [DbContext(typeof(PizzeriaDbContext))]
-    [Migration("20240716094406_CreateTablePizza")]
-    partial class CreateTablePizza
+    [Migration("20240716131312_CreateDoughTable")]
+    partial class CreateDoughTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,24 @@ namespace TPPizza.Web.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("TPPizza.Web.DataAccessLayer.Entity.Dough", b =>
+                {
+                    b.Property<long>("DoughId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("DoughId"));
+
+                    b.Property<string>("DoughName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("DoughId");
+
+                    b.ToTable("Doughs");
+                });
 
             modelBuilder.Entity("TPPizza.Web.DataAccessLayer.Entity.Pizza", b =>
                 {
