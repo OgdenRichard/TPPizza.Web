@@ -21,6 +21,21 @@ namespace TPPizza.Web.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("PizzaIngredients", b =>
+                {
+                    b.Property<long>("PizzaId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("IngredientId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("PizzaId", "IngredientId");
+
+                    b.HasIndex("IngredientId");
+
+                    b.ToTable("PizzaIngredients");
+                });
+
             modelBuilder.Entity("TPPizza.Web.DataAccessLayer.Entity.Dough", b =>
                 {
                     b.Property<long>("DoughId")
@@ -37,6 +52,24 @@ namespace TPPizza.Web.Migrations
                     b.HasKey("DoughId");
 
                     b.ToTable("Doughs");
+                });
+
+            modelBuilder.Entity("TPPizza.Web.DataAccessLayer.Entity.Ingredient", b =>
+                {
+                    b.Property<long>("IngredientId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("IngredientId"));
+
+                    b.Property<string>("IngredientName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("IngredientId");
+
+                    b.ToTable("Ingredients");
                 });
 
             modelBuilder.Entity("TPPizza.Web.DataAccessLayer.Entity.Pizza", b =>
@@ -59,18 +92,41 @@ namespace TPPizza.Web.Migrations
 
                     b.HasIndex("DoughId");
 
+                    b.HasIndex("PizzaName")
+                        .IsUnique();
+
                     b.ToTable("Pizzas");
+                });
+
+            modelBuilder.Entity("PizzaIngredients", b =>
+                {
+                    b.HasOne("TPPizza.Web.DataAccessLayer.Entity.Ingredient", null)
+                        .WithMany()
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TPPizza.Web.DataAccessLayer.Entity.Pizza", null)
+                        .WithMany()
+                        .HasForeignKey("PizzaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TPPizza.Web.DataAccessLayer.Entity.Pizza", b =>
                 {
                     b.HasOne("TPPizza.Web.DataAccessLayer.Entity.Dough", "Dough")
-                        .WithMany()
+                        .WithMany("Pizzas")
                         .HasForeignKey("DoughId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Dough");
+                });
+
+            modelBuilder.Entity("TPPizza.Web.DataAccessLayer.Entity.Dough", b =>
+                {
+                    b.Navigation("Pizzas");
                 });
 #pragma warning restore 612, 618
         }

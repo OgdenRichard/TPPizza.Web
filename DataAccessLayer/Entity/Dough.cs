@@ -12,5 +12,7 @@ namespace TPPizza.Web.DataAccessLayer.Entity
         [Required]
         [MaxLength(150)]
         public string DoughName { get; set; } = string.Empty;
+
+        public ICollection<Pizza> Pizzas { get; set; } = [];
     }
 }

@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TPPizza.Web.DataAccessLayer.Entity
 {
+
+    
     public sealed class Pizza
     {
 
@@ -15,10 +18,13 @@ namespace TPPizza.Web.DataAccessLayer.Entity
         [MaxLength(150)]
         public string PizzaName { get; set; } = String.Empty;
 
-        [Required]
+      
         public long DoughId { get; set; }
+        [Required]
+        public Dough Dough { get; set; } = default!;
 
-        public Dough Dough {  get; set; }
+        public ICollection<Ingredient> Ingredients { get; set; } = [];
+
 
     }
 }
