@@ -22,7 +22,7 @@ namespace TPPizza.Web.DataAccessLayer.Entity
         [Required]
         public long DoughId { get; set; }
     
-        public Dough Dough { get; set; } = default!;
+        public Dough? Dough { get; set; } = default!;
 
         public ICollection<Ingredient> Ingredients { get; set; } = [];
 
