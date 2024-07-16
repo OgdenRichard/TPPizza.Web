@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Index";
+
 }
 
 <h1>Index</h1>
@@ -18,6 +19,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Dough)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ingredients)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -30,6 +34,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Dough.DoughName)
             </td>
+                <td>
+                    @string.Join(", ", item.Ingredients.Select(i => i.IngredientName))
+                </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.PizzaId">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.PizzaId">Details</a> |

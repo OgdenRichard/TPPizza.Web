@@ -23,7 +23,7 @@ namespace TPPizza.Web.Controllers
         // GET: Pizzas
         public async Task<IActionResult> Index()
         {
-            var pizzeriaDbContext = _context.Pizzas.Include(p => p.Dough);
+            var pizzeriaDbContext = _context.Pizzas.Include(d => d.Dough).Include(i => i.Ingredients);
             return View(await pizzeriaDbContext.ToListAsync());
         }
 
@@ -65,7 +65,7 @@ namespace TPPizza.Web.Controllers
         public async Task<IActionResult> Create([Bind("Pizza,SelectedIngredientIds")] CreateViewModel input)
         {
             input.SelectableIngredients = this.GetSelectableIngredients();
-             
+            
             if (ModelState.IsValid)
             {
                 var pizzaToCreate = new Pizza()
@@ -75,6 +75,7 @@ namespace TPPizza.Web.Controllers
                     Ingredients = this.GetSelectedIngredients(input.SelectedIngredientIds)
 
                 };
+                this._context.Pizzas.Add(pizzaToCreate);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -180,7 +181,7 @@ namespace TPPizza.Web.Controllers
             return this._context.Ingredients.Select(i => new SelectListItem { Value = i.IngredientId.ToString(), Text = i.IngredientName }).ToList();
         }
 
-        private List<Ingredient> GetSelectedIngredients(List<String> selectedIngredientsIds)
+        private  List<Ingredient> GetSelectedIngredients(List<String> selectedIngredientsIds)
         {
             return _context.Ingredients
                  .Where(i => selectedIngredientsIds.Contains(i.IngredientId.ToString()))

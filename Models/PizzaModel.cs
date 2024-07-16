@@ -16,8 +16,8 @@ namespace TPPizza.Web.Models
         [Display(Name = "Dough Type")]
         public long DoughId { get; set; }
 
-        [Display(Name = "Dough Type")]
-        public Dough Dough { get; set; }
+         
+      
 
 
 
