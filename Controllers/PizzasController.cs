@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TPPizza.Web.DataAccessLayer;
 using TPPizza.Web.DataAccessLayer.Entity;
+using TPPizza.Web.Models.Pizza;
 
 namespace TPPizza.Web.Controllers
 {
@@ -48,8 +49,12 @@ namespace TPPizza.Web.Controllers
         // GET: Pizzas/Create
         public IActionResult Create()
         {
+            var vm = new CreateViewModel()
+            {
+                SelectedIngredients = this.GetSelectableIngredients()
+            };
             ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName");
-            return View();
+            return View(vm);
         }
 
         // POST: Pizzas/Create
@@ -159,6 +164,12 @@ namespace TPPizza.Web.Controllers
         private bool PizzaExists(long id)
         {
             return _context.Pizzas.Any(e => e.PizzaId == id);
+        }
+
+        private List<SelectListItem> GetSelectableIngredients()
+        {
+
+            return this._context.Ingredients.Select(i => new SelectListItem { Value = i.IngredientId.ToString(), Text = i.IngredientName }).ToList();
         }
     }
 }
