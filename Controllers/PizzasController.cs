@@ -229,13 +229,27 @@ namespace TPPizza.Web.Controllers
 
             var pizza = await _context.Pizzas
                 .Include(p => p.Dough)
+                .Include(p => p.Ingredients)
                 .FirstOrDefaultAsync(m => m.PizzaId == id);
             if (pizza == null)
             {
                 return NotFound();
             }
 
-            return View(pizza);
+            var model = new DeleteViewModel()
+            {
+                Pizza = new Models.PizzaModel()
+                {
+                    PizzaId = pizza.PizzaId,
+                    PizzaName = pizza.PizzaName,
+                    DoughId = pizza.DoughId,
+                },
+                Dough = pizza?.Dough,
+                Ingredients = pizza?.Ingredients.ToList()
+
+            };
+
+            return View(model);
         }
 
         // POST: Pizzas/Delete/5

@@ -30,13 +30,13 @@ namespace TPPizza.Web.DataAccessLayer
 
             //Many TO Many Pizza - Ingredient
             modelBuilder.Entity<Pizza>()
-            .HasMany(p => p.Ingredients)
-            .WithMany(i => i.Pizzas)
-            .UsingEntity(
-                "PizzaIngredients",
-                l => l.HasOne(typeof(Ingredient)).WithMany().HasForeignKey("IngredientId").HasPrincipalKey(nameof(Ingredient.IngredientId)).OnDelete(DeleteBehavior.Restrict),
-                r => r.HasOne(typeof(Pizza)).WithMany().HasForeignKey("PizzaId").HasPrincipalKey(nameof(Pizza.PizzaId)).OnDelete(DeleteBehavior.Restrict),
-                j => j.HasKey("PizzaId", "IngredientId"));
+           .HasMany(p => p.Ingredients)
+           .WithMany(i => i.Pizzas)
+           .UsingEntity(
+               "PizzaIngredients",
+               l => l.HasOne(typeof(Ingredient)).WithMany().HasForeignKey("IngredientId").HasPrincipalKey(nameof(Ingredient.IngredientId)).OnDelete(DeleteBehavior.Cascade),
+               r => r.HasOne(typeof(Pizza)).WithMany().HasForeignKey("PizzaId").HasPrincipalKey(nameof(Pizza.PizzaId)).OnDelete(DeleteBehavior.Cascade),
+               j => j.HasKey("PizzaId", "IngredientId"));
 
             //Unique Index of Pizza name
             modelBuilder.Entity<Pizza>()
