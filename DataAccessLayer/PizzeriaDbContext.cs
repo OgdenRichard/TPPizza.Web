@@ -1,13 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Runtime.InteropServices.Marshalling;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using TPPizza.Web.DataAccessLayer.Entity;
 
 namespace TPPizza.Web.DataAccessLayer
 {
-    //Hello from test branch 
-    public sealed class PizzeriaDbContext : DbContext
+    public sealed class PizzeriaDbContext : IdentityDbContext
     {
         public PizzeriaDbContext(DbContextOptions<PizzeriaDbContext> options)
         : base(options)
@@ -75,6 +72,8 @@ namespace TPPizza.Web.DataAccessLayer
                     new Ingredient { IngredientId = 14, IngredientName = "Basil" },
                     new Ingredient { IngredientId = 15, IngredientName = "Ricotta Cheese" }
                 );
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
