@@ -25,7 +25,14 @@ namespace TPPizza.Web.Controllers
         // GET: Pizzas
         public async Task<IActionResult> Index()
         {
-            var pizzeriaDbContext = _context.Pizzas.Include(d => d.Dough).Include(i => i.Ingredients);
+            var pizzeriaDbContext = _context.Pizzas.Include(d => d.Dough).Include(i => i.Ingredients).Select(p => new IndexViewModel()
+            {
+                PizzaId = p.PizzaId,
+                PizzaName = p.PizzaName,
+                DoughId = p.DoughId,
+                Dough = p.Dough,
+                Ingredients = p.Ingredients
+            });
             return View(await pizzeriaDbContext.ToListAsync());
         }
 
@@ -63,6 +70,7 @@ namespace TPPizza.Web.Controllers
         }
 
         // GET: Pizzas/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             var vm = new CreateViewModel()
@@ -78,6 +86,7 @@ namespace TPPizza.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Pizza,SelectedIngredientIds")] CreateViewModel input)
         {
            
@@ -110,6 +119,7 @@ namespace TPPizza.Web.Controllers
         }
 
         // GET: Pizzas/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(long? id)
         {
             if (id == null)
@@ -147,6 +157,7 @@ namespace TPPizza.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(long id, [Bind("Pizza,SelectedIngredientIds")] EditViewModel input)
         {
             if (id != input.Pizza.PizzaId)
@@ -222,6 +233,7 @@ namespace TPPizza.Web.Controllers
         }
 
         // GET: Pizzas/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(long? id)
         {
             if (id == null)
@@ -257,6 +269,7 @@ namespace TPPizza.Web.Controllers
         // POST: Pizzas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
             var pizza = await _context.Pizzas.FindAsync(id);
