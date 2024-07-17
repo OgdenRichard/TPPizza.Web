@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TPPizza.Web.DataAccessLayer;
 using TPPizza.Web.DataAccessLayer.Entity;
+using TPPizza.Web.Models;
 using TPPizza.Web.Models.Pizza;
 
 namespace TPPizza.Web.Controllers
@@ -64,10 +65,19 @@ namespace TPPizza.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Pizza,SelectedIngredientIds")] CreateViewModel input)
         {
-            input.SelectableIngredients = this.GetSelectableIngredients();
+           
             
             if (ModelState.IsValid)
             {
+                // The other solution is to make it as Validation Attribute !
+                var existingPizza = await _context.Pizzas.FirstOrDefaultAsync(p => p.PizzaName == input.Pizza.PizzaName);
+                if (existingPizza != null)
+                {
+                    ModelState.AddModelError("Pizza.PizzaName", "A pizza with this name already exists.");
+                    ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName", input.Pizza.DoughId);
+                    input.SelectableIngredients = this.GetSelectableIngredients();
+                    return View(input);
+                }
                 var pizzaToCreate = new Pizza()
                 {
                     PizzaName = input.Pizza.PizzaName,
@@ -79,6 +89,7 @@ namespace TPPizza.Web.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            input.SelectableIngredients = this.GetSelectableIngredients();
             ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName", input.Pizza.DoughId);
             return View(input);
         }
@@ -91,13 +102,29 @@ namespace TPPizza.Web.Controllers
                 return NotFound();
             }
 
-            var pizza = await _context.Pizzas.FindAsync(id);
+            var pizza = await _context.Pizzas
+                            .Include(p => p.Ingredients)
+                            .FirstOrDefaultAsync(p => p.PizzaId == id);
+
             if (pizza == null)
             {
                 return NotFound();
             }
+            var vm = new EditViewModel()
+            {
+                Pizza = new PizzaModel()
+                {
+                    PizzaId = pizza.PizzaId,
+                    PizzaName = pizza.PizzaName,
+                    DoughId = pizza.DoughId,
+
+                },
+                SelectedIngredientIds = pizza.Ingredients.Select(i => i.IngredientId.ToString()).ToList(),
+                SelectableIngredients = this.GetSelectableIngredients()
+            };
             ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName", pizza.DoughId);
-            return View(pizza);
+
+            return View(vm);
         }
 
         // POST: Pizzas/Edit/5
@@ -105,9 +132,9 @@ namespace TPPizza.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("PizzaId,PizzaName,DoughId")] Pizza pizza)
+        public async Task<IActionResult> Edit(long id, [Bind("Pizza,SelectedIngredientIds")] EditViewModel input)
         {
-            if (id != pizza.PizzaId)
+            if (id != input.Pizza.PizzaId)
             {
                 return NotFound();
             }
@@ -116,12 +143,54 @@ namespace TPPizza.Web.Controllers
             {
                 try
                 {
-                    _context.Update(pizza);
+                    // Fetch the existing pizza from the database
+                    var pizzaToUpdate = await _context.Pizzas
+                        .Include(p => p.Ingredients)
+                        .FirstOrDefaultAsync(p => p.PizzaId == id);
+
+                    if (pizzaToUpdate == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Check for name uniqueness (if name has changed)
+                    if (pizzaToUpdate.PizzaName != input.Pizza.PizzaName)
+                    {
+                        var existingPizza = await _context.Pizzas
+                            .FirstOrDefaultAsync(p => p.PizzaName == input.Pizza.PizzaName && p.PizzaId != id);
+                        if (existingPizza != null)
+                        {
+                            ModelState.AddModelError("Pizza.PizzaName", "A pizza with this name already exists.");
+                            input.SelectableIngredients = this.GetSelectableIngredients();
+                            ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName", input.Pizza.DoughId);
+                            return View(input);
+                        }
+                    }
+
+                    // Update the pizza properties
+                    pizzaToUpdate.PizzaName = input.Pizza.PizzaName;
+                    pizzaToUpdate.DoughId = input.Pizza.DoughId;
+
+                    // Update ingredients
+                    var selectedIngredients = this.GetSelectedIngredients(input.SelectedIngredientIds);
+                    var ingredientsToRemove = pizzaToUpdate.Ingredients.Where(i => !selectedIngredients.Contains(i)).ToList();
+                    var ingredientsToAdd = selectedIngredients.Where(i => !pizzaToUpdate.Ingredients.Contains(i)).ToList();
+
+                    foreach (var ingredient in ingredientsToRemove)
+                    {
+                        pizzaToUpdate.Ingredients.Remove(ingredient);
+                    }
+                    foreach (var ingredient in ingredientsToAdd)
+                    {
+                        pizzaToUpdate.Ingredients.Add(ingredient);
+                    }
+
+                    _context.Update(pizzaToUpdate);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PizzaExists(pizza.PizzaId))
+                    if (!PizzaExists(input.Pizza.PizzaId))
                     {
                         return NotFound();
                     }
@@ -132,8 +201,10 @@ namespace TPPizza.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName", pizza.DoughId);
-            return View(pizza);
+
+            input.SelectableIngredients = this.GetSelectableIngredients();
+            ViewData["DoughId"] = new SelectList(_context.Doughs, "DoughId", "DoughName", input.Pizza.DoughId);
+            return View(input);
         }
 
         // GET: Pizzas/Delete/5

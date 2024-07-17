@@ -1,4 +1,5 @@
-﻿@model TPPizza.Web.DataAccessLayer.Entity.Pizza
+﻿@using TPPizza.Web.Models.Pizza
+@model EditViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -12,16 +13,22 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="PizzaId" />
+            <input type="hidden" asp-for="Pizza.PizzaId" />
             <div class="form-group">
-                <label asp-for="PizzaName" class="control-label"></label>
-                <input asp-for="PizzaName" class="form-control" />
-                <span asp-validation-for="PizzaName" class="text-danger"></span>
+                <label asp-for="Pizza.PizzaName" class="control-label"></label>
+                <input asp-for="Pizza.PizzaName" class="form-control" />
+                <span asp-validation-for="Pizza.PizzaName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DoughId" class="control-label"></label>
-                <select asp-for="DoughId" class="form-control" asp-items="ViewBag.DoughId"></select>
-                <span asp-validation-for="DoughId" class="text-danger"></span>
+                <label asp-for="Pizza.DoughId" class="control-label"></label>
+                <select asp-for="Pizza.DoughId" class="form-control" asp-items="ViewBag.DoughId"></select>
+                <span asp-validation-for="Pizza.DoughId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SelectedIngredientIds" class="control-label"></label>
+                <select asp-for="SelectedIngredientIds" class="selectpicker form-select" asp-items="Model.SelectableIngredients" multiple></select>
+                <span asp-validation-for="SelectedIngredientIds" class="text-danger"></span>
+
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

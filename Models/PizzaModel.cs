@@ -10,6 +10,7 @@ namespace TPPizza.Web.Models
         [Required(ErrorMessage = "Pizza name is required")]
         [StringLength(150, ErrorMessage = "Pizza name cannot be longer than 150 characters")]
         [Display(Name = "Pizza Name")]
+       
         public string PizzaName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Dough selection is required")]
