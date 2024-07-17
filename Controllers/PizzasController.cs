@@ -37,6 +37,7 @@ namespace TPPizza.Web.Controllers
 
             var pizza = await _context.Pizzas
                 .Include(p => p.Dough)
+                .Include(p => p.Ingredients)
                 .FirstOrDefaultAsync(m => m.PizzaId == id);
             if (pizza == null)
             {
@@ -49,7 +50,10 @@ namespace TPPizza.Web.Controllers
                     PizzaId = pizza.PizzaId,
                     PizzaName = pizza.PizzaName,
                     DoughId = pizza.DoughId,
-                }
+                },
+                Dough = pizza?.Dough,
+                Ingredients = pizza?.Ingredients.ToList()
+             
             };
 
             return View(model);
