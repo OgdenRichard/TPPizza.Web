@@ -143,7 +143,6 @@ namespace TPPizza.Web.Controllers
             {
                 try
                 {
-                    // Fetch the existing pizza from the database
                     var pizzaToUpdate = await _context.Pizzas
                         .Include(p => p.Ingredients)
                         .FirstOrDefaultAsync(p => p.PizzaId == id);
@@ -153,7 +152,6 @@ namespace TPPizza.Web.Controllers
                         return NotFound();
                     }
 
-                    // Check for name uniqueness (if name has changed)
                     if (pizzaToUpdate.PizzaName != input.Pizza.PizzaName)
                     {
                         var existingPizza = await _context.Pizzas
@@ -167,13 +165,14 @@ namespace TPPizza.Web.Controllers
                         }
                     }
 
-                    // Update the pizza properties
+
                     pizzaToUpdate.PizzaName = input.Pizza.PizzaName;
                     pizzaToUpdate.DoughId = input.Pizza.DoughId;
 
-                    // Update ingredients
                     var selectedIngredients = this.GetSelectedIngredients(input.SelectedIngredientIds);
+
                     var ingredientsToRemove = pizzaToUpdate.Ingredients.Where(i => !selectedIngredients.Contains(i)).ToList();
+
                     var ingredientsToAdd = selectedIngredients.Where(i => !pizzaToUpdate.Ingredients.Contains(i)).ToList();
 
                     foreach (var ingredient in ingredientsToRemove)
