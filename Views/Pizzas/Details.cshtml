@@ -27,10 +27,7 @@
             @Html.DisplayNameFor(model => model.Ingredients)
         </dt>
         <dd class="col-sm-10">
-
-            @string.Join(", ", Model.Ingredients.Select(i => i.IngredientName));
-                
-            
+            @string.Join(", ", Model.Ingredients.Select(i => i.IngredientName))          
         </dd>
     </dl>
 </div>
