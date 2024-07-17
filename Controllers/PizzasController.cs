@@ -38,13 +38,26 @@ namespace TPPizza.Web.Controllers
 
             var pizza = await _context.Pizzas
                 .Include(p => p.Dough)
+                .Include(p => p.Ingredients)
                 .FirstOrDefaultAsync(m => m.PizzaId == id);
             if (pizza == null)
             {
                 return NotFound();
             }
 
-            return View(pizza);
+            var model = new DetailsViewModel()
+            {
+                Pizza = new Models.PizzaModel() { 
+                    PizzaId = pizza.PizzaId,
+                    PizzaName = pizza.PizzaName,
+                    DoughId = pizza.DoughId,
+                },
+                Dough = pizza?.Dough,
+                Ingredients = pizza?.Ingredients.ToList()
+             
+            };
+
+            return View(model);
         }
 
         // GET: Pizzas/Create
@@ -81,7 +94,7 @@ namespace TPPizza.Web.Controllers
                 var pizzaToCreate = new Pizza()
                 {
                     PizzaName = input.Pizza.PizzaName,
-                    DoughId =  input.Pizza.DoughId,
+                    DoughId = input.Pizza.DoughId,
                     Ingredients = this.GetSelectedIngredients(input.SelectedIngredientIds)
 
                 };
@@ -251,7 +264,7 @@ namespace TPPizza.Web.Controllers
             return this._context.Ingredients.Select(i => new SelectListItem { Value = i.IngredientId.ToString(), Text = i.IngredientName }).ToList();
         }
 
-        private  List<Ingredient> GetSelectedIngredients(List<String> selectedIngredientsIds)
+        private List<Ingredient> GetSelectedIngredients(List<String> selectedIngredientsIds)
         {
             return _context.Ingredients
                  .Where(i => selectedIngredientsIds.Contains(i.IngredientId.ToString()))
