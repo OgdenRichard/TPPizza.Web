@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using TPPizza.Web.DataAccessLayer.Entity;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace TPPizza.Web.DataAccessLayer
 {
@@ -19,6 +21,8 @@ namespace TPPizza.Web.DataAccessLayer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Dough>()
                .HasMany(d => d.Pizzas)
                .WithOne(p => p.Dough)
@@ -73,7 +77,40 @@ namespace TPPizza.Web.DataAccessLayer
                     new Ingredient { IngredientId = 15, IngredientName = "Ricotta Cheese" }
                 );
 
-            base.OnModelCreating(modelBuilder);
+            // Ids of Identity 
+            string ADMIN_ROLE_ID = "341743f0-asd2-42de-afbf-59kmkkmk72cf6";
+            string ADMIN_ID = "02174cf0-9412-4cfe-afbf-59f706d72cf6";
+
+            // Seed admin role
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+            {
+                Id = ADMIN_ROLE_ID,
+                Name = "SuperAdmin",
+                NormalizedName = "SUPERADMIN"
+            });
+
+            // Create user
+            var hasher = new PasswordHasher<IdentityUser>();
+            var adminUser = new IdentityUser
+            {
+                Id = ADMIN_ID,
+                UserName = "admin",
+                NormalizedUserName = "ADMIN",
+                Email = "mael@3bs.fr",
+                NormalizedEmail = "MAEL@3BS.FR",
+                EmailConfirmed = true
+            };
+            adminUser.PasswordHash = hasher.HashPassword(adminUser, "admin");
+
+            modelBuilder.Entity<IdentityUser>().HasData(adminUser);
+
+            // Set user role to admin
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
+            {
+                RoleId = ADMIN_ROLE_ID,
+                UserId = ADMIN_ID
+            });
+
         }
     }
 }

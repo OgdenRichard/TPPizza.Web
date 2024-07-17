@@ -1,6 +1,7 @@
 using TPPizza.Web.DataAccessLayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using TPPizza.Web.Areas.Identity.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
