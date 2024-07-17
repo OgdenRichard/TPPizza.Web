@@ -43,7 +43,16 @@ namespace TPPizza.Web.Controllers
                 return NotFound();
             }
 
-            return View(pizza);
+            var model = new DetailsViewModel()
+            {
+                Pizza = new Models.PizzaModel() { 
+                    PizzaId = pizza.PizzaId,
+                    PizzaName = pizza.PizzaName,
+                    DoughId = pizza.DoughId,
+                }
+            };
+
+            return View(model);
         }
 
         // GET: Pizzas/Create
@@ -65,13 +74,13 @@ namespace TPPizza.Web.Controllers
         public async Task<IActionResult> Create([Bind("Pizza,SelectedIngredientIds")] CreateViewModel input)
         {
             input.SelectableIngredients = this.GetSelectableIngredients();
-            
+
             if (ModelState.IsValid)
             {
                 var pizzaToCreate = new Pizza()
                 {
                     PizzaName = input.Pizza.PizzaName,
-                    DoughId =  input.Pizza.DoughId,
+                    DoughId = input.Pizza.DoughId,
                     Ingredients = this.GetSelectedIngredients(input.SelectedIngredientIds)
 
                 };
@@ -181,7 +190,7 @@ namespace TPPizza.Web.Controllers
             return this._context.Ingredients.Select(i => new SelectListItem { Value = i.IngredientId.ToString(), Text = i.IngredientName }).ToList();
         }
 
-        private  List<Ingredient> GetSelectedIngredients(List<String> selectedIngredientsIds)
+        private List<Ingredient> GetSelectedIngredients(List<String> selectedIngredientsIds)
         {
             return _context.Ingredients
                  .Where(i => selectedIngredientsIds.Contains(i.IngredientId.ToString()))
